@@ -25,7 +25,7 @@ const UserSchema = new mongoose.Schema({
   email: {
     type: String,
     unique: true,
-    required: false,
+    required: true,
   },
 });
 
@@ -94,7 +94,7 @@ app.get("/profile", async (req, res) => {
 // });
 
 app.post("/signup", async (req, res) => {
-  const { username, password } = req.body;
+  const { username, password, email } = req.body;
 
   try {
     const salt = bcrypt.genSaltSync();
@@ -105,6 +105,7 @@ app.post("/signup", async (req, res) => {
 
     const newUser = await new User({
       username,
+      email,
       password: bcrypt.hashSync(password, salt),
     }).save();
 
@@ -113,10 +114,12 @@ app.post("/signup", async (req, res) => {
         userId: newUser._id,
         username: newUser.username,
         accessToken: newUser.accessToken,
+        email: newUser.email,
       },
       success: true,
     });
   } catch (error) {
+    console.error(error);
     res.status(400).json({ response: error, success: false });
   }
 });
