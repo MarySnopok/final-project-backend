@@ -109,9 +109,10 @@ out body;
 // ~~~ // ~~~~~~ long     18.1085969
 
 app.get("/tracks", async (req, res) => {
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_operator
   const radius = Math.min(req.query.radius ?? 5_000, 10_000); // 10 km radius maximum
-  const lat = req.query.lat ?? 59.122;
-  const long = req.query.long ?? 18.108;
+  const lat = parseFloat(req.query.lat ?? "59.122");
+  const long = parseFloat(req.query.long ?? "18.108");
   queryOverpass(`
     [timeout:900][out:json];
     (
