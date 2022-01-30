@@ -3,6 +3,9 @@ import cors from "cors";
 import mongoose from "mongoose";
 import crypto from "crypto";
 import bcrypt from "bcrypt";
+import queryOverpass from "@derhuerst/query-overpass";
+
+// const queryOverpass = require('@derhuerst/query-overpass')
 
 const mongoUrl = process.env.MONGO_URL || "mongodb://localhost/authAPI";
 mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -92,6 +95,51 @@ app.get("/profile", async (req, res) => {
 //     res.status(400).json({ response: error, success: false });
 //   }
 // });
+
+/*
+example query
+  queryOverpass(`
+[out:json][timeout:25];
+node(3378340880);
+out body;
+`)
+*/
+
+// vasterhaninge latitude 59.1221593
+// ~~~ // ~~~~~~ long     18.1085969
+
+app.get("/tracks", async (req, res) => {
+  const radius = Math.min(req.query.radius ?? 5_000, 10_000); // 10 km radius maximum
+  const lat = req.query.lat ?? 59.122;
+  const long = req.query.long ?? 18.108;
+  queryOverpass(`
+    [timeout:900][out:json];
+    (
+    rel
+      [type=route]
+      [route=hiking]
+      (around:${radius}.0,${lat.toFixed(2)},${long.toFixed(2)});
+      );
+    out center tags geom body;
+    `)
+    .then((data) => {
+      res.status(200).json({
+        response: {
+          data,
+        },
+        status: "success",
+      });
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).json({
+        response: {
+          error: err,
+          status: "error",
+        },
+      });
+    });
+});
 
 app.post("/signup", async (req, res) => {
   const { username, password, email } = req.body;
