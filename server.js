@@ -107,6 +107,12 @@ out body;
 
 // vasterhaninge latitude 59.1221593
 // ~~~ // ~~~~~~ long     18.1085969
+app.get("/favorite", authenticateUser);
+app.get("/favorite", async (req, res) => {
+  const userFavorite = req.user;
+
+  res.status(200).json({ response: user, success: true });
+});
 
 app.get("/tracks", async (req, res) => {
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_operator
