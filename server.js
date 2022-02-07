@@ -30,18 +30,24 @@ const UserSchema = new mongoose.Schema({
     unique: true,
     required: true,
   },
+  favorite: [
+    {
+      id: String,
+      tags: mongoose.Schema.Types.Mixed,
+    },
+  ],
 });
 
 const User = mongoose.model("User", UserSchema);
 
-// const ThoughtSchema = new mongoose.Schema({
+// const FavoriteSchema = new mongoose.Schema({
 //   message: {
 //     type: String,
 //     required: true,
 //   },
 // });
 
-// const Thought = mongoose.model("Thought", ThoughtSchema);
+// const newFavoriteRoute = mongoose.model("FavoriteRoute", FavoriteSchema);
 
 // Defines the port the app will run on. Defaults to 8080, but can be
 // overridden when starting the server. For example:
@@ -85,11 +91,35 @@ app.get("/profile", async (req, res) => {
   res.status(200).json({ response: user, success: true });
 });
 
-// app.post("/thoughts", async (req, res) => {
-//   const { message } = req.body;
+app.post("/favorite", authenticateUser);
+app.post("/favorite", async (req, res) => {
+  try {
+    const user = req.user;
+    user.favorite.push({ id: req.body.route.id, tags: req.body.route.tags });
+    await user.save();
+    res.status(200).json({ response: user, success: true });
+  } catch (error) {
+    res.status(400).json({ response: error, success: false });
+  }
+});
 
+app.delete("/favorite", authenticateUser);
+app.delete("/favorite", async (req, res) => {
+  try {
+    const user = req.user;
+    user.favorite = user.favorite.filter((route) => route.id !== req.body.route.id);
+    await user.save();
+    res.status(200).json({ response: user, success: true });
+  } catch (error) {
+    res.status(400).json({ response: error, success: false });
+  }
+});
+
+// app.post("/favorite", async (req, res) => {
+
+//   const { favorite } = req.body;
 //   try {
-//     const newThought = await new Thought({ message }).save();
+//     const newFavoriteRoute = await new Thought({ message }).save();
 //     res.status(201).json({ response: newThought, success: true });
 //   } catch (error) {
 //     res.status(400).json({ response: error, success: false });
@@ -107,12 +137,6 @@ out body;
 
 // vasterhaninge latitude 59.1221593
 // ~~~ // ~~~~~~ long     18.1085969
-app.get("/favorite", authenticateUser);
-app.get("/favorite", async (req, res) => {
-  const userFavorite = req.user;
-
-  res.status(200).json({ response: user, success: true });
-});
 
 app.get("/tracks", async (req, res) => {
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_operator
