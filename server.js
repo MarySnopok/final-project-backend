@@ -115,6 +115,38 @@ app.delete("/favorite", async (req, res) => {
   }
 });
 
+// https://overpass-turbo.eu/
+app.get("/tracks/:id", async (req, res) => {
+  const routeId = req.params.id;
+  queryOverpass(`
+    [timeout:900][out:json];
+    (
+    rel
+      [type=route]
+      [route=hiking]
+      (id:${routeId}); 
+    );
+    out center tags geom body;
+    `)
+    .then((data) => {
+      res.status(200).json({
+        response: {
+          data,
+        },
+        status: "success",
+      });
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).json({
+        response: {
+          error: err,
+          status: "error",
+        },
+      });
+    });
+});
+
 // app.post("/favorite", async (req, res) => {
 
 //   const { favorite } = req.body;
