@@ -40,15 +40,6 @@ const UserSchema = new mongoose.Schema({
 
 const User = mongoose.model("User", UserSchema);
 
-// const FavoriteSchema = new mongoose.Schema({
-//   message: {
-//     type: String,
-//     required: true,
-//   },
-// });
-
-// const newFavoriteRoute = mongoose.model("FavoriteRoute", FavoriteSchema);
-
 // Defines the port the app will run on. Defaults to 8080, but can be
 // overridden when starting the server. For example:
 //
@@ -146,29 +137,6 @@ app.get("/tracks/:id", async (req, res) => {
       });
     });
 });
-
-// app.post("/favorite", async (req, res) => {
-
-//   const { favorite } = req.body;
-//   try {
-//     const newFavoriteRoute = await new Thought({ message }).save();
-//     res.status(201).json({ response: newThought, success: true });
-//   } catch (error) {
-//     res.status(400).json({ response: error, success: false });
-//   }
-// });
-
-/*
-example query
-  queryOverpass(`
-[out:json][timeout:25];
-node(3378340880);
-out body;
-`)
-*/
-
-// vasterhaninge latitude 59.1221593
-// ~~~ // ~~~~~~ long     18.1085969
 
 app.get("/tracks", async (req, res) => {
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_operator
