@@ -5,8 +5,6 @@ import crypto from "crypto";
 import bcrypt from "bcrypt";
 import queryOverpass from "@derhuerst/query-overpass";
 
-// const queryOverpass = require('@derhuerst/query-overpass')
-
 const mongoUrl = process.env.MONGO_URL || "mongodb://localhost/authAPI";
 mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true });
 mongoose.Promise = Promise;
