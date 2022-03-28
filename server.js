@@ -5,6 +5,8 @@ import crypto from "crypto";
 import bcrypt from "bcrypt";
 import queryOverpass from "@derhuerst/query-overpass";
 
+import { getFromCache, addToCache } from "./tracks-cache";
+
 const mongoUrl = process.env.MONGO_URL || "mongodb://localhost/authAPI";
 mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true });
 mongoose.Promise = Promise;
@@ -141,6 +143,20 @@ app.get("/tracks", async (req, res) => {
   const radius = Math.min(req.query.radius ?? 5_000, 10_000); // 10 km radius maximum
   const lat = parseFloat(req.query.lat ?? "59.122");
   const long = parseFloat(req.query.long ?? "18.108");
+
+  const key = `${radius}-${lat.toFixed(2)}-${long.toFixed(2)}`;
+
+  const cached = await getFromCache(key);
+  if (cached) {
+    res.status(200).json({
+      response: {
+        data: cached,
+      },
+      status: "success",
+    });
+    return;
+  }
+
   queryOverpass(`
     [timeout:900][out:json];
     (
@@ -152,6 +168,7 @@ app.get("/tracks", async (req, res) => {
     out center tags geom body;
     `)
     .then((data) => {
+      addToCache(key, data);
       res.status(200).json({
         response: {
           data,
