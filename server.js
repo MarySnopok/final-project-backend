@@ -36,6 +36,9 @@ const UserSchema = new mongoose.Schema({
       tags: mongoose.Schema.Types.Mixed,
     },
   ],
+  profilePicture: {
+    type: String,
+  },
 });
 
 const User = mongoose.model("User", UserSchema);
@@ -51,7 +54,11 @@ const app = express();
 // v1 - Allow all domains
 app.use(cors());
 
-app.use(express.json());
+app.use(
+  express.json({
+    limit: "50mb",
+  })
+);
 
 const authenticateUser = async (req, res, next) => {
   const accessToken = req.header("Authorization");
@@ -79,6 +86,15 @@ app.get("/profile", authenticateUser);
 app.get("/profile", async (req, res) => {
   const user = req.user;
 
+  res.status(200).json({ response: user, success: true });
+});
+
+app.post("/profile", authenticateUser);
+app.post("/profile", async (req, res) => {
+  const user = req.user;
+  const profilePicture = req.body.profilePicture;
+  user.profilePicture = profilePicture;
+  await user.save();
   res.status(200).json({ response: user, success: true });
 });
 
